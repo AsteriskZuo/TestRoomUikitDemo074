@@ -26,7 +26,6 @@ const appKey = 'easemob#easeim';
 const userId = 'zuoyu1';
 const userPs =
   'YWMtAg39PLxAEe-yBmmOjksLMFzzvlQ7sUrSpVuQGlyIzFRNQylgcXoR7oNIDTQKv3VfAwMAAAGT00z3uTeeSAAiV8ZGufOUmm4J1jA3guuBm81CIOVmJqQjV7UsHoxTxg';
-const peerId = 'zuoyu2';
 const roomId = '267406324858889';
 const room = {
   roomId: roomId,
@@ -38,13 +37,12 @@ function SendMessage() {
   const [appkey, setAppkey] = React.useState(appKey);
   const [id, setId] = React.useState(userId);
   const [ps, setPs] = React.useState(userPs);
-  const [peer, setPeer] = React.useState(peerId);
   const im = useRoomContext();
   const {top} = useSafeAreaInsets();
 
   if (page === 0) {
     return (
-      // 登录页面
+      // Log in page
       <SafeAreaView style={styles.common}>
         <TextInput
           placeholder="Please App Key."
@@ -61,21 +59,14 @@ function SendMessage() {
           value={ps}
           onChangeText={setPs}
         />
-        <TextInput
-          placeholder="Please peer ID."
-          value={peer}
-          onChangeText={setPeer}
-        />
         <Pressable
           style={styles.login}
           onPress={() => {
-            console.log('test:zuoyu:login', id, ps);
             im.login({
               userId: id,
               userToken: ps,
               result: res => {
                 console.log('login result', res);
-                console.log('test:zuoyu:error', res);
                 if (res.isOk === true) {
                   setPage(1);
                 }
@@ -96,7 +87,7 @@ function SendMessage() {
       </SafeAreaView>
     );
   } else if (page === 1) {
-    // 聊天页面
+    // chat room page
     return (
       <SafeAreaView style={styles.common}>
         <Chatroom
@@ -117,10 +108,10 @@ function SendMessage() {
           roomId={room.roomId}
           ownerId={room.owner}
           onError={e => {
-            console.log('ChatroomScreen:onError:2', e.toString());
+            console.log('ChatroomScreen:onError:', e.toString());
           }}>
           <Pressable
-            style={[styles.button, styles.login]}
+            style={[styles.logout, styles.login]}
             onPress={() => {
               setPage(0);
               im.logout({
@@ -138,6 +129,7 @@ function SendMessage() {
 }
 
 function App(): React.JSX.Element {
+  // initialize the chat room
   return (
     <Container appKey={appKey}>
       <SendMessage />
@@ -149,7 +141,7 @@ const styles = StyleSheet.create({
   common: {
     flex: 1,
   },
-  button: {
+  logout: {
     position: 'absolute',
     top: 0,
     right: 0,
