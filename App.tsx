@@ -5,113 +5,160 @@
  * @format
  */
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import * as React from 'react';
 import {
+  Platform,
+  Pressable,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
 } from 'react-native';
-
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  Chatroom,
+  Container,
+  TextInput,
+  useRoomContext,
+} from 'react-native-chat-room';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const appKey = 'easemob#easeim';
+const userId = 'zuoyu1';
+const userPs =
+  'YWMtAg39PLxAEe-yBmmOjksLMFzzvlQ7sUrSpVuQGlyIzFRNQylgcXoR7oNIDTQKv3VfAwMAAAGT00z3uTeeSAAiV8ZGufOUmm4J1jA3guuBm81CIOVmJqQjV7UsHoxTxg';
+const peerId = 'zuoyu2';
+const roomId = '267406324858889';
+const room = {
+  roomId: roomId,
+  owner: userId,
+};
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
+function SendMessage() {
+  const [page, setPage] = React.useState(0);
+  const [appkey, setAppkey] = React.useState(appKey);
+  const [id, setId] = React.useState(userId);
+  const [ps, setPs] = React.useState(userPs);
+  const [peer, setPeer] = React.useState(peerId);
+  const im = useRoomContext();
+  const {top} = useSafeAreaInsets();
+
+  if (page === 0) {
+    return (
+      // 登录页面
+      <SafeAreaView style={styles.common}>
+        <TextInput
+          placeholder="Please App Key."
+          value={appkey}
+          onChangeText={setAppkey}
+        />
+        <TextInput
+          placeholder="Please Login ID."
+          value={id}
+          onChangeText={setId}
+        />
+        <TextInput
+          placeholder="Please Login token or password."
+          value={ps}
+          onChangeText={setPs}
+        />
+        <TextInput
+          placeholder="Please peer ID."
+          value={peer}
+          onChangeText={setPeer}
+        />
+        <Pressable
+          style={styles.login}
+          onPress={() => {
+            console.log('test:zuoyu:login', id, ps);
+            im.login({
+              userId: id,
+              userToken: ps,
+              result: res => {
+                console.log('login result', res);
+                console.log('test:zuoyu:error', res);
+                if (res.isOk === true) {
+                  setPage(1);
+                }
+              },
+            });
+          }}>
+          <Text>{'Login'}</Text>
+        </Pressable>
+        <Pressable
+          style={styles.login}
+          onPress={() => {
+            im.logout({
+              result: () => {},
+            });
+          }}>
+          <Text>{'Logout'}</Text>
+        </Pressable>
+      </SafeAreaView>
+    );
+  } else if (page === 1) {
+    // 聊天页面
+    return (
+      <SafeAreaView style={styles.common}>
+        <Chatroom
+          messageList={{
+            props: {
+              visible: true,
+              reportProps: {
+                data: [],
+              },
+            },
+          }}
+          input={{
+            props: {
+              keyboardVerticalOffset: Platform.OS === 'ios' ? top : 0,
+              after: [],
+            },
+          }}
+          roomId={room.roomId}
+          ownerId={room.owner}
+          onError={e => {
+            console.log('ChatroomScreen:onError:2', e.toString());
+          }}>
+          <Pressable
+            style={[styles.button, styles.login]}
+            onPress={() => {
+              setPage(0);
+              im.logout({
+                result: () => {},
+              });
+            }}>
+            <Text>{'log out'}</Text>
+          </Pressable>
+        </Chatroom>
+      </SafeAreaView>
+    );
+  } else {
+    return <View />;
+  }
 }
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <Container appKey={appKey}>
+      <SendMessage />
+    </Container>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  common: {
+    flex: 1,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  button: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  login: {
+    height: 40,
+    backgroundColor: 'darkseagreen',
+    borderColor: 'floralwhite',
+    borderWidth: 1,
   },
 });
 

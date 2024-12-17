@@ -10,8 +10,17 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "@react-navigation/native": "^7.0.14",
+    "@react-navigation/native-stack": "^7.2.0",
     "react": "18.2.0",
-    "react-native": "0.74.6"
+    "react-native": "0.74.6",
+    "react-native-chat-room": "/Users/asterisk/Output/npm/react-native-chat-room-1.1.0-beta.0",
+    "react-native-chat-sdk": "1.6.2",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-safe-area-context": "^5.0.0",
+    "react-native-screens": "^4.3.0",
+    "twemoji": "^14.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
